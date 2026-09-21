@@ -2,12 +2,15 @@
 
 On iPad, add server address `np.hanasand.com` and port `443`.
 Current iPad Bedrock uses NetherNet. Geyser accepts its WebRTC traffic on UDP
-443; built-in signaling uses internal TCP 19132, published only on loopback.
+19132; built-in signaling uses internal TCP 19132, published only on loopback.
 OpenResty serves `/v1/join` over HTTP and HTTPS on `np.hanasand.com:443`.
 Its shared TCP listener distinguishes plaintext HTTP, TLS, and Java Minecraft.
-The public UDP port and the internal WebRTC port must both be 443, because
+The public UDP port and the internal WebRTC port must both be 19132, because
 Geyser advertises the public address through `geyserAdvertiseAddresses`.
-No external signaling provider or upstream firewall change is needed.
+UDP 443 is blocked upstream. UDP 19132 was verified with three successful
+round trips from the separate OVH host (192.99.32.185), not the local Mac,
+which reaches Inspur from a private network. No external signaling provider
+or upstream firewall change is needed.
 
 OpenResty's companion configuration is tracked in the openresty repository:
 `nginx/conf/nginx.conf` and `nginx/conf.d/bedrock.conf`.
