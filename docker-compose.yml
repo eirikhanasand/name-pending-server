@@ -7,13 +7,15 @@ services:
     ports:
       - "127.0.0.1:25565:25565"
       - "8100:8100"
-      - "443:19132/udp"
+      - "443:443/udp"
+      - "127.0.0.1:19132:19132/tcp"
     environment:
       EULA: "TRUE"
       TYPE: "PURPUR"
       VERSION: "1.21.11"
       PURPUR_BUILD: "2568"
       MEMORY: "8G"
+      JVM_OPTS: "-DgeyserSignalingPort=19132 -DgeyserAdvertiseAddresses=128.39.142.218"
       ONLINE_MODE: "true"
       ENFORCE_SECURE_PROFILE: "false"
       ENABLE_RCON: "true"

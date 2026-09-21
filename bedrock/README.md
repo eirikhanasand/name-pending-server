@@ -1,8 +1,18 @@
 # Bedrock access
 
 On iPad, add server address `np.hanasand.com` and port `443`.
-Docker maps public UDP 443 to Geyser's internal UDP 19132. Java continues
-through the existing TCP 443 router. No upstream firewall change is needed.
+Current iPad Bedrock uses NetherNet. Geyser accepts its WebRTC traffic on UDP
+443; built-in signaling uses internal TCP 19132, published only on loopback.
+OpenResty serves `/v1/join` over HTTP and HTTPS on `np.hanasand.com:443`.
+Its shared TCP listener distinguishes plaintext HTTP, TLS, and Java Minecraft.
+The public UDP port and the internal WebRTC port must both be 443, because
+Geyser advertises the public address through `geyserAdvertiseAddresses`.
+No external signaling provider or upstream firewall change is needed.
+
+OpenResty's companion configuration is tracked in the openresty repository:
+`nginx/conf/nginx.conf` and `nginx/conf.d/bedrock.conf`.
+Deploy that routing with this configuration. RakNet-only clients are not
+supported on this endpoint; RakNet and NetherNet cannot share one UDP listener.
 
 Geyser 2.11.3 build 1245 and Floodgate 2.2.5 build 141 are pinned alongside
 ViaVersion 5.12.0 in plugins.lock.json. Downloads are checksum verified.
@@ -13,6 +23,8 @@ Secure-profile enforcement is disabled because Bedrock accounts cannot provide
 Java chat signatures. Floodgate keys and player data stay in the ignored data
 directory. Unlinked Bedrock accounts have separate player inventories; use
 Floodgate account linking to share an existing Java player identity.
+Keep the whitelist enabled. Add Bedrock accounts with `fwhitelist add GAMERTAG`;
+if its lookup cannot resolve the account, use the authenticated Floodgate UUID.
 
 Deploy from the clean source checkout:
 ```sh
@@ -29,6 +41,6 @@ deployment's backups directory. It preserves worlds and other plugins.
 Keep using the clean source checkout for commits; do not push the legacy live
 deployment history.
 
-Run `python3 bedrock/check.py` from outside Inspur to verify Bedrock status and
-RakNet negotiation on UDP 443. An authenticated iPad join is still required to
-verify gameplay. Also check that Java still responds on TCP 443.
+Run `python3 bedrock/check.py` from outside Inspur to check HTTP/HTTPS signaling
+and rejection of invalid authentication. An authenticated iPad join verifies
+UDP/WebRTC and gameplay. Also check Java routes, HTTPS, and Cashflow SSH.
